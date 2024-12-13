@@ -12,6 +12,7 @@ import packaging
 import packaging.version
 from napari import __version__
 from napari._qt.qthreading import create_worker
+from napari.utils.misc import running_as_constructor_app
 from napari.utils.notifications import show_warning
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import (
@@ -23,8 +24,7 @@ from qtpy.QtWidgets import (
 )
 from superqt import ensure_main_thread
 
-from napari_plugin_manager.qt_plugin_dialog import ON_BUNDLE
-
+ON_BUNDLE = running_as_constructor_app()
 IGNORE_DAYS = 21
 IGNORE_FILE = "ignore.txt"
 
@@ -91,6 +91,7 @@ class UpdateChecker(QWidget):
         self._latest_version = None
         self._worker = None
         self._base_folder = sys.prefix
+        self._snoozed = False
 
         self.label = QLabel("Checking for updates...<br>")
         self.check_updates_button = QPushButton("Check for updates")
@@ -111,7 +112,8 @@ class UpdateChecker(QWidget):
         self.label.setText("Checking for updates...\n")
         self._timer.start()
 
-    def check(self):
+    def _check_time(self):
+        # print(os.path.join(self._base_folder, IGNORE_FILE))
         if os.path.exists(os.path.join(self._base_folder, IGNORE_FILE)):
             with (
                 open(
@@ -121,11 +123,16 @@ class UpdateChecker(QWidget):
                 suppress(ValueError),
             ):
                 old_date = date.fromisoformat(f_p.read())
+                self._snoozed = (date.today() - old_date).days < IGNORE_DAYS
                 if (date.today() - old_date).days < IGNORE_DAYS:
-                    return
+                    return True
 
             os.remove(os.path.join(self._base_folder, IGNORE_FILE))
 
+        return False
+
+    def check(self):
+        self._check_time()
         self._worker = create_worker(get_latest_version)
         self._worker.yielded.connect(self.show_version_info)
         self._worker.start()
@@ -144,21 +151,22 @@ class UpdateChecker(QWidget):
                 f'visit the <a href="{url}">online documentation</a><br><br>'
             )
             self.label.setText(msg)
-            message = QMessageBox(
-                QMessageBox.Icon.Information,
-                "New release",
-                msg,
-                QMessageBox.StandardButton.Ok
-                | QMessageBox.StandardButton.Ignore,
-            )
-            if message.exec_() == QMessageBox.StandardButton.Ignore:
-                os.makedirs(self._base_folder, exist_ok=True)
-                with open(
-                    os.path.join(self._base_folder, IGNORE_FILE),
-                    "w",
-                    encoding="utf-8",
-                ) as f_p:
-                    f_p.write(date.today().isoformat())
+            if not self._snoozed:
+                message = QMessageBox(
+                    QMessageBox.Icon.Information,
+                    "New release",
+                    msg,
+                    QMessageBox.StandardButton.Ok
+                    | QMessageBox.StandardButton.Ignore,
+                )
+                if message.exec_() == QMessageBox.StandardButton.Ignore:
+                    os.makedirs(self._base_folder, exist_ok=True)
+                    with open(
+                        os.path.join(self._base_folder, IGNORE_FILE),
+                        "w",
+                        encoding="utf-8",
+                    ) as f_p:
+                        f_p.write(date.today().isoformat())
         else:
             msg = (
                 f"You are using the latest version of napari!<br><br>"
