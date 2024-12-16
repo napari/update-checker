@@ -86,38 +86,47 @@ class UpdateChecker(QWidget):
     def show_version_info(self, latest_version: packaging.version.Version):
         my_version = self._current_version
         remote_version = latest_version
-        if remote_version > my_version:
-            url = self.URL_BUNDLE if ON_BUNDLE else self.URL_PACKAGE
+
+        if self._is_dev:
             msg = (
-                f"You use outdated version of napari.<br><br>"
+                f"You using napari in development mode.<br><br>"
                 f"Installed version: {my_version}<br>"
-                f"Current version: {remote_version}<br><br>"
-                "For more information on how to update <br>"
-                f'visit the <a href="{url}">online documentation</a><br><br>'
+                f"Current released version: {remote_version}<br><br>"
             )
             self.label.setText(msg)
-            if not self._snoozed:
-                message = QMessageBox(
-                    QMessageBox.Icon.Information,
-                    "New release",
-                    msg,
-                    QMessageBox.StandardButton.Ok
-                    | QMessageBox.StandardButton.Ignore,
-                )
-                if message.exec_() == QMessageBox.StandardButton.Ignore:  # type: ignore
-                    os.makedirs(self._base_folder, exist_ok=True)
-                    with open(
-                        os.path.join(self._base_folder, IGNORE_FILE),
-                        "w",
-                        encoding="utf-8",
-                    ) as f_p:
-                        f_p.write(date.today().isoformat())
         else:
-            msg = (
-                f"You are using the latest version of napari!<br><br>"
-                f"Installed version: {my_version}<br><br>"
-            )
-            self.label.setText(msg)
+            if remote_version > my_version:
+                url = self.URL_BUNDLE if ON_BUNDLE else self.URL_PACKAGE
+                msg = (
+                    f"You use outdated version of napari.<br><br>"
+                    f"Installed version: {my_version}<br>"
+                    f"Current version: {remote_version}<br><br>"
+                    "For more information on how to update <br>"
+                    f'visit the <a href="{url}">online documentation</a><br><br>'
+                )
+                self.label.setText(msg)
+                if not self._snoozed:
+                    message = QMessageBox(
+                        QMessageBox.Icon.Information,
+                        "New release",
+                        msg,
+                        QMessageBox.StandardButton.Ok
+                        | QMessageBox.StandardButton.Ignore,
+                    )
+                    if message.exec_() == QMessageBox.StandardButton.Ignore:  # type: ignore
+                        os.makedirs(self._base_folder, exist_ok=True)
+                        with open(
+                            os.path.join(self._base_folder, IGNORE_FILE),
+                            "w",
+                            encoding="utf-8",
+                        ) as f_p:
+                            f_p.write(date.today().isoformat())
+            else:
+                msg = (
+                    f"You are using the latest version of napari!<br><br>"
+                    f"Installed version: {my_version}<br><br>"
+                )
+                self.label.setText(msg)
 
 
 if __name__ == '__main__':

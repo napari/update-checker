@@ -10,8 +10,8 @@ from napari_update_checker.utils import (
 def test_github_tags():
     try:
         data = github_tags()
-        assert data[0] == '0.5.0a1'
-        assert len(data) >= 30  # Oldest version
+        assert data[0] == '0.5.0a1'  # Oldest version
+        assert len(data) >= 30
     except (HTTPError, URLError):
         pass
 
