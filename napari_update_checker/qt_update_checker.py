@@ -1,19 +1,13 @@
-import json
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from datetime import date
-from functools import lru_cache
-from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
 
 import packaging
 import packaging.version
 from napari import __version__
 from napari._qt.qthreading import create_worker
 from napari.utils.misc import running_as_constructor_app
-from napari.utils.notifications import show_warning
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import (
     QLabel,
@@ -24,59 +18,11 @@ from qtpy.QtWidgets import (
 )
 from superqt import ensure_main_thread
 
+from napari_update_checker.utils import get_latest_version
+
 ON_BUNDLE = running_as_constructor_app()
 IGNORE_DAYS = 21
-IGNORE_FILE = "ignore.txt"
-
-
-@lru_cache
-def github_tags():
-    url = 'https://api.github.com/repos/napari/napari/tags'
-    with urlopen(url) as r:
-        data = json.load(r)
-
-    versions = []
-    for item in data:
-        version = item.get('name', None)
-        if version:
-            if version.startswith('v'):
-                version = version[1:]
-
-            versions.append(version)
-
-    return list(reversed(versions))
-
-
-@lru_cache
-def conda_forge_releases():
-    url = 'https://api.anaconda.org/package/conda-forge/napari/'
-    with urlopen(url) as r:
-        data = json.load(r)
-    versions = data.get('versions', [])
-    return versions
-
-
-def get_latest_version():
-    """Check latest version between tags and conda forge."""
-    try:
-        with ThreadPoolExecutor() as executor:
-            tags = executor.submit(github_tags)
-            cf = executor.submit(conda_forge_releases)
-
-        gh_tags = tags.result()
-        cf_versions = cf.result()
-    except (HTTPError, URLError):
-        show_warning(
-            'Plugin manager: There seems to be an issue with network connectivity. '
-        )
-        return
-
-    latest_version = packaging.version.parse(cf_versions[-1])
-    latest_tag = packaging.version.parse(gh_tags[-1])
-    if latest_version > latest_tag:
-        yield latest_version
-    else:
-        yield latest_tag
+IGNORE_FILE = "napari-update-ignore.txt"
 
 
 class UpdateChecker(QWidget):
@@ -138,7 +84,7 @@ class UpdateChecker(QWidget):
         self._worker.start()
 
     @ensure_main_thread
-    def show_version_info(self, latest_version):
+    def show_version_info(self, latest_version: packaging.version.Version):
         my_version = self._current_version
         remote_version = latest_version
         if remote_version > my_version:
@@ -159,7 +105,7 @@ class UpdateChecker(QWidget):
                     QMessageBox.StandardButton.Ok
                     | QMessageBox.StandardButton.Ignore,
                 )
-                if message.exec_() == QMessageBox.StandardButton.Ignore:
+                if message.exec_() == QMessageBox.StandardButton.Ignore:  # type: ignore
                     os.makedirs(self._base_folder, exist_ok=True)
                     with open(
                         os.path.join(self._base_folder, IGNORE_FILE),
@@ -180,4 +126,4 @@ if __name__ == '__main__':
 
     app = QApplication([])
     checker = UpdateChecker()
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())  # type: ignore
