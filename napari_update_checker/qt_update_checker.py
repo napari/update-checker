@@ -3,7 +3,6 @@ import sys
 from contextlib import suppress
 from datetime import date
 
-import packaging
 import packaging.version
 from napari import __version__
 from napari._qt.qthreading import create_worker
@@ -34,6 +33,7 @@ class UpdateChecker(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self._current_version = packaging.version.parse(__version__)
+        self._is_dev = '.dev' in __version__
         self._latest_version = None
         self._worker = None
         self._base_folder = sys.prefix
@@ -59,7 +59,6 @@ class UpdateChecker(QWidget):
         self._timer.start()
 
     def _check_time(self):
-        # print(os.path.join(self._base_folder, IGNORE_FILE))
         if os.path.exists(os.path.join(self._base_folder, IGNORE_FILE)):
             with (
                 open(
