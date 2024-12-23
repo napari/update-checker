@@ -1,6 +1,8 @@
 import json
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
@@ -60,3 +62,13 @@ def get_latest_version(github: Optional[bool] = None):
 
     if versions:
         yield packaging.version.parse(versions[-1])
+
+
+def is_conda_environment(path):
+    return (Path(path) / 'conda-meta').exists()
+
+
+def is_version_installed(version, pkg_name='napari'):
+    envs_folder = Path(sys.prefix)
+    env = envs_folder.parent / f'{pkg_name}-{version}'
+    return env.exists() and is_conda_environment(env)

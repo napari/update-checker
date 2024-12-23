@@ -17,7 +17,10 @@ from qtpy.QtWidgets import (
 )
 from superqt import ensure_main_thread
 
-from napari_update_checker.utils import get_latest_version
+from napari_update_checker.utils import (
+    get_latest_version,
+    is_version_installed,
+)
 
 ON_BUNDLE = running_as_constructor_app()
 IGNORE_DAYS = 21
@@ -95,7 +98,9 @@ class UpdateChecker(QWidget):
             )
             self.label.setText(msg)
         else:
-            if remote_version > my_version:
+            if remote_version > my_version and not is_version_installed(
+                str(remote_version)
+            ):
                 url = self.URL_BUNDLE if ON_BUNDLE else self.URL_PACKAGE
                 msg = (
                     f"You use outdated version of napari.<br><br>"
