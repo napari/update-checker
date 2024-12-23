@@ -1,3 +1,4 @@
+import urllib.request
 import sys
 import tempfile
 from pathlib import Path
@@ -30,13 +31,13 @@ def test_conda_forge_releases():
         pass
 
 
-def test_get_latest_version():
+def test_get_latest_version(monkeypatch):
     result = get_latest_version(github=None)
-    assert result
+    assert list(result)
     result = get_latest_version(github=True)
-    assert result
+    assert list(result)
     result = get_latest_version(github=False)
-    assert result
+    assert list(result)
 
 
 def test_is_conda_environment():
