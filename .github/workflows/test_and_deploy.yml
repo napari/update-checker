@@ -34,8 +34,6 @@ jobs:
         python-version: ["3.9", "3.10", "3.11"]
         napari: ["latest", "repo"]
         exclude:
-          # TODO: Remove when we have a napari release with the plugin manager changes
-          - napari: "latest"
           # TODO: PyQt / PySide wheels missing
           - python-version: "3.11"
             platform: "windows-latest"
