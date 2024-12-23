@@ -16,7 +16,7 @@ The `napari-update-checker` is a plugin that checks for newer versions of napari
 
 ![Screenshot of the napari-update-checker interface, showcasing the plugin](https://raw.githubusercontent.com/napari/update-checker/refs/heads/main/images/description.png)
 
-`napari-update-checler` knows how to detect if napari was installed using `conda` or `pip` or if it was installed using the application bundle to provide the correct documentation on how to update napari to the latest version.
+`napari-update-checker` knows how to detect if napari was installed using `conda` or `pip` or if it was installed using the application bundle to provide the correct documentation on how to update napari to the latest version.
 
 ## Widget
 
@@ -31,7 +31,8 @@ software.
 
 If you encounter any problems, please [file an issue] along with a detailed description.
 
-[napari]: https://github.com/napari/napari
 [file an issue]: https://github.com/napari/update-checker/issues
 [conda-forge]: https://anaconda.org/conda-forge/napari
 [PyPI]: https://pypi.org/napari
+[BSD-3]: http://opensource.org/licenses/BSD-3-Clause
+[napari]: https://github.com/napari/napari
