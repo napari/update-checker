@@ -1,6 +1,6 @@
 # napari-update-checker
 
-[![License](https://img.shields.io/pypi/l/napari-update-checker.svg?color=green)](https://github.com/napari/update-checker/raw/main/LICENSE)
+[![License](https://img.shields.io/pypi/l/napari-update-checker.svg?color=green)](https://raw.githubusercontent.com/napari/update-checker/refs/heads/main/LICENSE.txt)
 [![PyPI](https://img.shields.io/pypi/v/napari-update-checker.svg?color=green)](https://pypi.org/project/napari-update-checker)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-update-checker.svg?color=green)](https://python.org)
 [![tests](https://github.com/napari/update-checker/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/napari/update-checker/actions/workflows/test_and_deploy.yml)

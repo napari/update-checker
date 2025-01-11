@@ -80,7 +80,7 @@ docs = [
 ]
 
 [project.urls]
-homepage = "https://github.com/napari/napari-plugin-manager"
+homepage = "https://github.com/napari/update-checker"
 
 [tool.black]
 target-version = ['py39', 'py310', 'py311']
